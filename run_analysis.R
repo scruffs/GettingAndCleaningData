@@ -43,7 +43,7 @@ run_analysis <- function() {
             summarise_each(funs(mean))
       
       ## Write the data to a file.
-      write.table(data_to_output, file = "data_mean_std.txt")
+      write.table(data_to_output, file = "data_mean_std.txt", row.name=FALSE)
       
       ## Leave the table as the return value
       data_to_output
