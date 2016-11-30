@@ -5,26 +5,46 @@ date: "11/30/2016"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Getting and Cleaning Data Assignment
+
+## Setting Up The Environment
+
+In order to complete this assignment I used a number of libraries that do not come in the base package. The below commands will load all necessary libraries. 
+
+```{r eval=FALSE, echo=TRUE}
+library(dplyr)
+library(data.table)
+library(plyr)
+library(dtplyr)
 ```
 
-## Getting and Cleaning Data Assignment
+The next step is to import the data from the text files and store them as objects in the RStudio project. The following commands achieve this.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r eval=FALSE, echo=TRUE}
+x_test <- fread("data/test/X_test.txt")
+y_test <- fread("data/test/y_test.txt")
+subject_test <- fread("data/test/subject_test.txt")
+x_train <- fread("data/train/X_train.txt")
+y_train <- fread("data/train/y_train.txt")
+subject_train <- fread("data/train/subject_train.txt")
+features <- fread("data/features.txt")
+activity_labels<- fread("data/activity_labels.txt")
 ```
 
-## Including Plots
+For my convenience I stored all of these initialisation commands in a file called "load_libraraies_and_data.R". Simple sourcing this file runs all of the commands, thus loading the libraries and data as required.
 
-You can also embed plots, for example:
+## Tidy Data
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+Hadley Wickham lays out the details of the concept of tidy data in his paper, [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf). A good further discussion of this can be found at the [thoughtfulbloke blog](https://thoughtfulbloke.wordpress.com/2015/09/09/getting-and-cleaning-the-assignment/). There are three main concepts to tidy data, which I will address below.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1. Each variable forms a column.
+      + There are two keys to this data that I have placed in the fisrt two columns; Subject and Activity. Each column after these two are the variable columns. I have extracted the features with the word "mean" or "std" in them.
+2. Each observation forms a row.
+      + Each row comprises the mean of any observation for each possible combination of the two keys. For example, every observation where the subject is "1" and the activity is "walking" has the mean taken of them and form one row
+3. Each type of observational unit forms a table.
+      + All the data provided is for one type of observational unit. Although there are many features, they are part of the same type and should hence be placed in one table.
+
+##Run Analysis
+
+I personally found it easier to run the analysis with a slight change to the order given. I performed step number 4 first, as I found once my tables had the correct names for the comlumns it made the remaining steps more straight forward. Below is a run down of how the analysis was performed. I will use the numbers from the specifications for each of the steps, which is why number 4 comes first.
+

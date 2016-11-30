@@ -6,8 +6,7 @@ library(plyr)
 library(dtplyr)
 
 
-## Import the data. I find the tbl_dt format to be the easiest way
-## to manipulate data.
+## Import the data from the text files
 x_test <- fread("data/test/X_test.txt")
 y_test <- fread("data/test/y_test.txt")
 subject_test <- fread("data/test/subject_test.txt")
