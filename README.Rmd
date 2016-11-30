@@ -39,14 +39,14 @@ features <- fread("data/features.txt")
 activity_labels<- fread("data/activity_labels.txt")
 ```
 
-For my convenience I stored all of these initialisation commands in a file called "load_libraraies_and_data.R". Simple sourcing this file runs all of the commands, thus loading the libraries and data as required.
+For my convenience I stored all of these initialization commands in a file called "load_libraraies_and_data.R". Simple sourcing this file runs all of the commands, thus loading the libraries and data as required.
 
 ## Tidy Data
 
 Hadley Wickham lays out the details of the concept of tidy data in his paper, [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf). A good further discussion of this can be found at the [thoughtfulbloke blog](https://thoughtfulbloke.wordpress.com/2015/09/09/getting-and-cleaning-the-assignment/). There are three main concepts to tidy data, which I will address below.
 
 1. Each variable forms a column.
-      + There are two key variables to this data that I have placed in the fisrt two columns; Subject and Activity. Each column after these two are the measurement variable columns. I have extracted the features with the word "mean" or "std" in them.
+      + There are two key variables to this data that I have placed in the first two columns; Subject and Activity. Each column after these two are the measurement variable columns. I have extracted the features with the word "mean" or "std" in them.
 2. Each observation forms a row.
       + Each row comprises the mean of any observation for each possible combination of the two keys. For example, every observation where the subject is "1" and the activity is "walking" has the mean taken of them and form one row
 3. Each type of observational unit forms a table.
@@ -54,7 +54,7 @@ Hadley Wickham lays out the details of the concept of tidy data in his paper, [T
 
 ## Run Analysis
 
-I personally found it easier to run the analysis with a slight change to the order given. I combined step 1 and 4 into the same series. Naming the columns with the correct names before doing the final merge helped me to eliminate errors that occured when I attempted this with the random column names.
+I personally found it easier to run the analysis with a slight change to the order given. I combined step 1 and 4 into the same series. Naming the columns with the correct names before doing the final merge helped me to eliminate errors that occurred when I attempted this with the random column names.
 
 ### Merge and Lable Variable Names
 #### Step 1 and 4
@@ -65,7 +65,7 @@ x_train <- cbind(subject_train, y_train, x_train)
 x_test <- cbind(subject_test, y_test, x_test)
 ``` 
 
-I then extract the feature names from the features.txt file and make a character vector of these names. To clean these up a litte I remove the braces from the names and swap any dashes for underscores.
+I then extract the feature names from the features.txt file and make a character vector of these names. To clean these up a little I remove the braces from the names and swap any dashes for underscores.
 ```{r eval=FALSE, echo=TRUE}
 features <- features$V2
 features <- gsub("-", "_", features)
@@ -77,7 +77,7 @@ To make sure that the first two columns of the keys also have the correct names,
 features <- c("subject", "activity", features)
 ```
 
-The columns in the two datasets for the test and train function are then named with the appropriate variable headings.
+The columns in the two data sets for the test and train function are then named with the appropriate variable headings.
 ```{r eval=FALSE, echo=TRUE}
 names(x_test) <- features
 names(x_train) <- features
@@ -100,7 +100,7 @@ mean_std <- select_(x_merged, .dots = mean_std_names)
 ### Descriptive Activity Names
 #### Step 3
 
-I recast the *"activity"* column as a factor and then appllied the activity names from the *"activity_labels.txt"* as those **factors**.
+I recast the *"activity"* column as a factor and then applied the activity names from the *"activity_labels.txt"* as those **factors**.
 ```{r eval=FALSE, echo=TRUE}
 mean_std$activity <- as.factor(mean_std$activity)
 levels(mean_std$activity) <- activity_labels$V2
