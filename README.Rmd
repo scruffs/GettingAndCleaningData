@@ -7,6 +7,14 @@ output: html_document
 
 # Getting and Cleaning Data Assignment
 
+## Loading My Data
+Anyone that needs to load the data file  I have produced and view it in RStudio can do so with the following commands.
+```{r eval=FALSE, echo=TRUE}
+data <- read.table("data_mean_std.txt", header = TRUE)
+View(data)
+```
+
+
 ## Setting Up The Environment
 
 In order to complete this assignment I used a number of libraries that do not come in the base package. The below commands will load all necessary libraries. 
@@ -18,7 +26,7 @@ library(plyr)
 library(dtplyr)
 ```
 
-The next step is to import the data from the text files and store them as objects in the RStudio project. The following commands achieve this.
+The next step is to import the data from the text files and store them as objects in the RStudio project with the correct names for the script. The following commands achieve this.
 
 ```{r eval=FALSE, echo=TRUE}
 x_test <- fread("data/test/X_test.txt")
@@ -38,13 +46,81 @@ For my convenience I stored all of these initialisation commands in a file calle
 Hadley Wickham lays out the details of the concept of tidy data in his paper, [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf). A good further discussion of this can be found at the [thoughtfulbloke blog](https://thoughtfulbloke.wordpress.com/2015/09/09/getting-and-cleaning-the-assignment/). There are three main concepts to tidy data, which I will address below.
 
 1. Each variable forms a column.
-      + There are two keys to this data that I have placed in the fisrt two columns; Subject and Activity. Each column after these two are the variable columns. I have extracted the features with the word "mean" or "std" in them.
+      + There are two key variables to this data that I have placed in the fisrt two columns; Subject and Activity. Each column after these two are the measurement variable columns. I have extracted the features with the word "mean" or "std" in them.
 2. Each observation forms a row.
       + Each row comprises the mean of any observation for each possible combination of the two keys. For example, every observation where the subject is "1" and the activity is "walking" has the mean taken of them and form one row
 3. Each type of observational unit forms a table.
       + All the data provided is for one type of observational unit. Although there are many features, they are part of the same type and should hence be placed in one table.
 
-##Run Analysis
+## Run Analysis
 
-I personally found it easier to run the analysis with a slight change to the order given. I performed step number 4 first, as I found once my tables had the correct names for the comlumns it made the remaining steps more straight forward. Below is a run down of how the analysis was performed. I will use the numbers from the specifications for each of the steps, which is why number 4 comes first.
+I personally found it easier to run the analysis with a slight change to the order given. I combined step 1 and 4 into the same series. Naming the columns with the correct names before doing the final merge helped me to eliminate errors that occured when I attempted this with the random column names.
+
+### Merge and Lable Variable Names
+#### Step 1 and 4
+
+To start I add the data for the *"subject"* and *"activity"* type as new columns to the **train** and **test** data tables.
+```{r eval=FALSE, echo=TRUE}
+x_train <- cbind(subject_train, y_train, x_train)
+x_test <- cbind(subject_test, y_test, x_test)
+``` 
+
+I then extract the feature names from the features.txt file and make a character vector of these names. To clean these up a litte I remove the braces from the names and swap any dashes for underscores.
+```{r eval=FALSE, echo=TRUE}
+features <- features$V2
+features <- gsub("-", "_", features)
+features<- gsub("\\(|\\)", "", features)
+```
+
+To make sure that the first two columns of the keys also have the correct names, I add these to the front of the list.
+```{r eval=FALSE, echo=TRUE}
+features <- c("subject", "activity", features)
+```
+
+The columns in the two datasets for the test and train function are then named with the appropriate variable headings.
+```{r eval=FALSE, echo=TRUE}
+names(x_test) <- features
+names(x_train) <- features
+``` 
+
+These appropriately named data sets are then combined together.
+```{r eval=FALSE, echo=TRUE}
+x_merged <- rbind(x_train, x_test)
+```
+
+### Extract Mean and Standard Deviation Measurements
+#### Step 2
+
+Using the **grepl** function allowed me to find all the column names with *"mean"* or *"std"* in them. I also ensured that the activity and subject columns remain. I passed these names into the **select** function, to keep only these columns.
+```{r eval=FALSE, echo=TRUE}
+mean_std_names <- features[grepl("mean|std|activity|subject", features)]
+mean_std <- select_(x_merged, .dots = mean_std_names)
+```
+
+### Descriptive Activity Names
+#### Step 3
+
+I recast the *"activity"* column as a factor and then appllied the activity names from the *"activity_labels.txt"* as those **factors**.
+```{r eval=FALSE, echo=TRUE}
+mean_std$activity <- as.factor(mean_std$activity)
+levels(mean_std$activity) <- activity_labels$V2
+```
+
+### Create Averaged Tidy Data Set
+#### Step 5
+Finally we need to create a tidy data set with the average of each variable for each activity and each subject.
+
+I first grouped the data table by the two keys; the *"subject"* and *"activity"*. Then *piped* this into the **dplyr summarise_each** function, with mean.
+```{r eval=FALSE, echo=TRUE}
+      data_to_output <- mean_std %>% 
+            group_by(subject, activity) %>% 
+            summarise_each(funs(mean))
+```
+   
+Now that the data was tidy and summarized, I wrote this data to a table.
+```{r eval=FALSE, echo=TRUE}   
+      ## Write the data to a file.
+      write.table(data_to_output, file = "data_mean_std.txt")
+```
+
 

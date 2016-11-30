@@ -1,5 +1,9 @@
 run_analysis <- function() {
       
+      ## Add the subject and activity type to columns at the front
+      x_train <- cbind(subject_train, y_train, x_train)
+      x_test <- cbind(subject_test, y_test, x_test)
+      
       ## Remove the extra column from features to leave just a 
       ## vector of names
       features <- features$V2
@@ -12,11 +16,6 @@ run_analysis <- function() {
       ## Add the activity label for the end column once the 
       ## tables have been merged
       features <- c("subject", "activity", features)
-      
-      
-      ## Add the activity type to a column on the end
-      x_train <- cbind(subject_train, y_train, x_train)
-      x_test <- cbind(subject_test, y_test, x_test)
       
       ## Set the column names in the data sets to the features.
       names(x_test) <- features
